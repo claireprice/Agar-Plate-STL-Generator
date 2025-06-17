@@ -39,8 +39,6 @@ Price, C. L. (2025). Agar Plate STL Generator (1.0.0). Zenodo. https://doi.org/1
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.15682097.svg)](https://doi.org/10.5281/zenodo.15682097)
 
 
-DOI will be updated once published to Zenodo.
-
 ## Author
 
 Claire L. Price  
