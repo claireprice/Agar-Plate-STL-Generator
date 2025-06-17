@@ -1,0 +1,22 @@
+{
+  "title": "Agar Plate STL Generator",
+  "upload_type": "software",
+  "description": "A web tool that transforms images of agar plates into STL files for 3D printing. Useful for science-art applications and 3D model generation.",
+  "creators": [
+    {
+      "name": "Price, Claire L.",
+      "affiliation": "Swansea University Medical School, Singleton Park Campus, Swansea SA2 8PP UK",
+      "orcid": "https://orcid.org/0000-0002-6045-4835"
+    }
+  ],
+  "license": "CC-BY-NC-4.0",
+  "keywords": [
+    "3D printing",
+    "agar plates",
+    "bioart",
+    "STL",
+    "heightmap"
+  ],
+  "related_identifiers": [],
+  "version": "1.0.0"
+}
