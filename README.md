@@ -2,7 +2,7 @@
 
 A browser-based tool to convert agar plate images into 3D printable STL files using heightmaps.
 
-WeblinK: https://claireprice.github.io/Agar-Plate-STL-Generator/
+Weblink: https://claireprice.github.io/Agar-Plate-STL-Generator/
 
 ## Features
 
