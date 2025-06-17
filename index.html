@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Agar Plate STL Generator</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', 'Roboto', Arial, sans-serif;
+      background: linear-gradient(120deg, #232946 0%, #16161a 100%);
+      padding: 0;
+      margin: 0;
+      min-height: 100vh;
+      color: #f4f4f8;
+    }
+    .header {
+      width: 100%;
+      background: linear-gradient(90deg, #283593 0%, #1976d2 100%);
+      color: #fff;
+      padding: 18px 0 12px 0;
+      text-align: center;
+      font-size: 1.5rem;
+      letter-spacing: 1px;
+      font-weight: 600;
+      box-shadow: 0 2px 12px rgba(25, 118, 210, 0.18);
+      margin-bottom: 0;
+    }
+    .main-flex {
+      display: flex;
+      flex-direction: row;
+      justify-content: center;
+      align-items: flex-start;
+      height: calc(100vh - 60px);
+      gap: 32px;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+    .sidebar {
+      background: #232946;
+      border-radius: 14px;
+      box-shadow: 0 4px 16px rgba(25, 118, 210, 0.14);
+      padding: 18px 18px 18px 18px;
+      min-width: 270px;
+      max-width: 320px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: 32px;
+    }
+    .instructions {
+      background: #232946;
+      border-radius: 6px;
+      padding: 10px 8px 8px 8px;
+      margin-bottom: 10px;
+      font-size: 0.97rem;
+      line-height: 1.5;
+      border: 1px solid #283593;
+    }
+    input[type="file"] {
+      display: block;
+      margin: 0 0 10px 0;
+      padding: 6px 0;
+      border: none;
+      background: none;
+      font-size: 0.97rem;
+      color: #8ab4f8;
+      cursor: pointer;
+    }
+    input[type="file"]::-webkit-file-upload-button {
+      background: #232946;
+      color: #8ab4f8;
+      border: 1px solid #8ab4f8;
+      border-radius: 5px;
+      padding: 6px 12px;
+      font-size: 0.97rem;
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s;
+    }
+    input[type="file"]:hover::-webkit-file-upload-button {
+      background: #1976d2;
+      color: #fff;
+    }
+    button {
+      background: linear-gradient(90deg, #1976d2 0%, #42a5f5 100%);
+      color: #fff;
+      border: none;
+      border-radius: 7px;
+      padding: 8px 18px;
+      font-size: 1rem;
+      font-weight: 500;
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgba(25, 118, 210, 0.12);
+      transition: background 0.2s, transform 0.1s;
+      margin-bottom: 10px;
+    }
+    button:hover, button:focus {
+      background: linear-gradient(90deg, #1565c0 0%, #1976d2 100%);
+      transform: translateY(-1px) scale(1.02);
+      outline: none;
+    }
+    label[for="heightSlider"] {
+      display: block;
+      margin: 10px 0 4px 0;
+      color: #b8c1ec;
+      font-size: 0.97rem;
+      font-weight: 500;
+    }
+    #heightSlider {
+      width: 100%;
+      margin-bottom: 4px;
+      accent-color: #1976d2;
+      height: 3px;
+      border-radius: 3px;
+      background: #232946;
+      outline: none;
+      transition: accent-color 0.2s;
+    }
+    #heightValue {
+      display: inline-block;
+      min-width: 28px;
+      color: #8ab4f8;
+      font-weight: 600;
+      font-size: 1rem;
+      margin-left: 6px;
+      vertical-align: middle;
+    }
+    .preview-area {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-top: 32px;
+      background: #232946;
+      border-radius: 14px;
+      box-shadow: 0 4px 16px rgba(25, 118, 210, 0.14);
+      padding: 18px 18px 18px 18px;
+      min-width: 480px;
+      max-width: 600px;
+    }
+    canvas {
+      display: block;
+      margin: 0 auto 10px auto;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(25, 118, 210, 0.12);
+      background: #16161a;
+      border: 1.2px solid #283593;
+      width: 100%;
+      max-width: 480px; /* or 600px if you want */
+      height: auto;
+    }
+    #viewer {
+      text-align: center;
+      margin-top: 10px;
+      margin-bottom: 10px;
+      color: #f4f4f8;
+      font-size: 0.98rem;
+    }
+    #viewer h3 {
+      margin-bottom: 6px;
+      color: #8ab4f8;
+      font-size: 1rem;
+      font-weight: 500;
+    }
+    @media (max-width: 900px) {
+      .main-flex { flex-direction: column; align-items: center; height: auto; }
+      .sidebar, .preview-area { margin-top: 18px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="header">Agar Plate STL Generator</div>
+  <div class="main-flex">
+    <!-- Left column: Instructions and controls -->
+    <div class="sidebar">
+      <div class="instructions">
+        <b>Instructions:</b><br>
+        1. <b>Upload</b> a greyscale or colour image of your agar plate.<br>
+        2. Adjust the <b>Height Range</b> slider to set the 3D relief.<br>
+        3. Preview the original and heightmap.<br>
+        4. Click <b>Download STL</b> to save your 3D model for printing.<br>
+        <span style="color:#8ab4f8;">Tip: Higher contrast images give more pronounced 3D features.</span>
+      </div>
+      <input type="file" id="imageUpload" accept="image/*" />
+      <button id="downloadBtn">Download STL</button>
+      <label for="heightSlider">Height Range:</label>
+      <input type="range" id="heightSlider" min="1" max="10" step="0.1" value="3">
+      <span id="heightValue">3</span>
+    </div>
+    <!-- Middle column: Original image -->
+    <div class="preview-area">
+      <span style="color:#8ab4f8;font-weight:500;margin-bottom:6px;">Original Plate</span>
+      <canvas id="originalCanvas" width="480" height="480"></canvas>
+    </div>
+    <!-- Right column: Heightmap -->
+    <div class="preview-area">
+      <span style="color:#8ab4f8;font-weight:500;margin-bottom:6px;">Heightmap Preview</span>
+      <canvas id="heightmapCanvas" width="480" height="480"></canvas>
+    </div>
+  </div>
+  <footer style="width:100%;text-align:center;color:#8ab4f8;font-size:0.95rem;padding:18px 0 10px 0;opacity:0.85;">
+    &copy; Claire L. Price 2025
+  </footer>
+  <script>
+    // --- JS for 3-column layout ---
+const DIAMETER = 87;
+const BASE_HEIGHT = 4;
+let HEIGHTMAP_HEIGHT = 3;
+const BEVEL_WIDTH = 2;
+
+const originalCanvas = document.getElementById("originalCanvas");
+const originalCtx = originalCanvas.getContext("2d");
+const heightmapCanvas = document.getElementById("heightmapCanvas");
+const heightmapCtx = heightmapCanvas.getContext("2d");
+const size = 480; // or 600 for even larger
+
+let heightMap = [];
+let uploadedImage = null;
+
+document.getElementById("imageUpload").addEventListener("change", handleImage);
+document.getElementById("downloadBtn").addEventListener("click", generateSTL);
+
+function handleImage(event) {
+  const file = event.target.files[0];
+  const reader = new FileReader();
+  reader.onload = function (e) {
+    const img = new Image();
+    img.onload = function () {
+      uploadedImage = img;
+      // Draw original plate image in the middle column
+      originalCtx.clearRect(0, 0, size, size);
+      originalCtx.drawImage(img, 0, 0, size, size);
+      processImage();
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+function processImage() {
+  if (!uploadedImage) return;
+  // Draw to hidden canvas for processing
+  originalCtx.drawImage(uploadedImage, 0, 0, size, size);
+  const data = originalCtx.getImageData(0, 0, size, size).data;
+  heightMap = [];
+  for (let y = 0; y < size; y++) {
+    const row = [];
+    for (let x = 0; x < size; x++) {
+      const i = (y * size + x) * 4;
+      let gray = (data[i] + data[i + 1] + data[i + 2]) / 3 / 255;
+      gray = Math.pow(gray, 0.7);
+      row.push(gray * HEIGHTMAP_HEIGHT);
+    }
+    heightMap.push(row);
+  }
+  drawHeightmapPreview();
+}
+
+function drawHeightmapPreview() {
+  const imageData = heightmapCtx.createImageData(size, size);
+  const radius = DIAMETER / 2;
+  const scale = DIAMETER / size;
+  const bevelStart = radius - BEVEL_WIDTH;
+
+  for (let y = 0; y < size; y++) {
+    for (let x = 0; x < size; x++) {
+      const px = (x - size / 2) * scale;
+      const py = (y - size / 2) * scale;
+      const d = Math.hypot(px, py);
+
+      let h = 0;
+      if (d <= radius) {
+        const bevel = d <= bevelStart ? 1 : Math.max(0, (radius - d) / BEVEL_WIDTH);
+        h = BASE_HEIGHT + heightMap[y][x] * bevel;
+      }
+
+      const color = Math.floor((h / (BASE_HEIGHT + HEIGHTMAP_HEIGHT)) * 255);
+      const idx = (y * size + x) * 4;
+      imageData.data[idx] = color;
+      imageData.data[idx + 1] = color;
+      imageData.data[idx + 2] = color;
+      imageData.data[idx + 3] = 255;
+    }
+  }
+  heightmapCtx.putImageData(imageData, 0, 0);
+}
+
+    function generateSTL() {
+      const stl = [];
+      stl.push("solid agar_plate");
+
+      const radius = DIAMETER / 2;
+      const scale = DIAMETER / size;
+      const bevelStart = radius - BEVEL_WIDTH;
+
+      let edgePoints = [];
+
+      for (let y = 0; y < size - 1; y++) {
+        for (let x = 0; x < size - 1; x++) {
+          const cx = (x - size / 2) * scale;
+          const cy = ((size - 1 - y) - size / 2) * scale;
+          const cx1 = (x + 1 - size / 2) * scale;
+          const cy1 = ((size - y - 2) - size / 2) * scale;
+
+          const d1 = Math.hypot(cx, cy);
+          const d2 = Math.hypot(cx1, cy);
+          const d3 = Math.hypot(cx, cy1);
+          const d4 = Math.hypot(cx1, cy1);
+
+          const inBounds = (d) => d <= radius;
+          const bevel = (d) => d <= bevelStart ? 1 : Math.max(0, (radius - d) / BEVEL_WIDTH);
+
+          if (inBounds(d1) && inBounds(d2) && inBounds(d3) && inBounds(d4)) {
+            const z00 = BASE_HEIGHT + heightMap[y][x] * bevel(d1);
+            const z10 = BASE_HEIGHT + heightMap[y][x + 1] * bevel(d2);
+            const z01 = BASE_HEIGHT + heightMap[y + 1][x] * bevel(d3);
+            const z11 = BASE_HEIGHT + heightMap[y + 1][x + 1] * bevel(d4);
+
+            stl.push(...facet([cx, cy, z00], [cx1, cy, z10], [cx, cy1, z01]));
+            stl.push(...facet([cx1, cy, z10], [cx1, cy1, z11], [cx, cy1, z01]));
+
+            [
+              [cx, cy, z00, d1], [cx1, cy, z10, d2],
+              [cx, cy1, z01, d3], [cx1, cy1, z11, d4]
+            ].forEach(p => {
+              if (Math.abs(p[3] - radius) < scale) {
+                edgePoints.push([p[0], p[1], p[2]]);
+              }
+            });
+          }
+        }
+      }
+
+      // Sort and wrap edge points
+      edgePoints = edgePoints.filter(p => p[2] !== undefined);
+      edgePoints.sort((a, b) => Math.atan2(a[1], a[0]) - Math.atan2(b[1], b[0]));
+
+      // Remove duplicate edge points
+      const uniqueEdgeMap = new Map();
+      edgePoints.forEach(([x, y, z]) => {
+        const key = `${x.toFixed(4)},${y.toFixed(4)}`;
+        if (!uniqueEdgeMap.has(key)) uniqueEdgeMap.set(key, [x, y, z]);
+      });
+      const uniqueEdgePoints = Array.from(uniqueEdgeMap.values());
+
+      // Sort edge points by angle to ensure a continuous loop
+      uniqueEdgePoints.sort((a, b) => Math.atan2(a[1], a[0]) - Math.atan2(b[1], b[0]));
+
+      // Build the wall between top and base using the actual edge points
+      for (let i = 0; i < uniqueEdgePoints.length; i++) {
+        const p1 = uniqueEdgePoints[i];
+        const p2 = uniqueEdgePoints[(i + 1) % uniqueEdgePoints.length];
+        const b1 = [p1[0], p1[1], 0];
+        const b2 = [p2[0], p2[1], 0];
+        stl.push(...facet(p1, b1, p2));
+        stl.push(...facet(p2, b1, b2));
+      }
+
+      // Base
+      for (let y = 0; y < size - 1; y++) {
+        for (let x = 0; x < size - 1; x++) {
+          const cx = (x - size / 2) * scale;
+          const cy = ((size - 1 - y) - size / 2) * scale;
+          const cx1 = (x + 1 - size / 2) * scale;
+          const cy1 = ((size - y - 2) - size / 2) * scale;
+
+          const d1 = Math.hypot(cx, cy);
+          const d2 = Math.hypot(cx1, cy);
+          const d3 = Math.hypot(cx, cy1);
+          const d4 = Math.hypot(cx1, cy1);
+
+          if (d1 <= radius && d2 <= radius && d3 <= radius && d4 <= radius) {
+            stl.push(...facet([cx, cy, 0], [cx, cy1, 0], [cx1, cy, 0]));
+            stl.push(...facet([cx1, cy, 0], [cx, cy1, 0], [cx1, cy1, 0]));
+          }
+        }
+      }
+
+      stl.push("endsolid agar_plate");
+      const blob = new Blob([stl.join("\n")], { type: "model/stl" });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = "agar_plate.stl";
+      link.click();
+    }
+
+    function facet(v1, v2, v3) {
+      const normal = computeNormal(v1, v2, v3);
+      return [
+        `facet normal ${normal.join(" ")}`,
+        `  outer loop`,
+        `    vertex ${v1.join(" ")}`,
+        `    vertex ${v2.join(" ")}`,
+        `    vertex ${v3.join(" ")}`,
+        `  endloop`,
+        `endfacet`
+      ];
+    }
+
+    function computeNormal(p1, p2, p3) {
+      const u = [p2[0] - p1[0], p2[1] - p1[1], p2[2] - p1[2]];
+      const v = [p3[0] - p1[0], p3[1] - p1[1], p3[2] - p1[2]];
+      const n = [
+        u[1] * v[2] - u[2] * v[1],
+        u[2] * v[0] - u[0] * v[2],
+        u[0] * v[1] - u[1] * v[0]
+      ];
+      const len = Math.hypot(...n);
+      return len ? n.map(c => c / len) : [0, 0, 0];
+    }
+
+    // Height slider logic
+    const heightSlider = document.getElementById("heightSlider");
+    heightSlider.addEventListener("input", () => {
+      const heightValue = document.getElementById("heightValue");
+      HEIGHTMAP_HEIGHT = parseFloat(heightSlider.value);
+      heightValue.textContent = HEIGHTMAP_HEIGHT;
+      if (uploadedImage) processImage();
+    });
+  </script>
+</body>
+</html>
